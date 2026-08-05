@@ -1,0 +1,74 @@
+[
+    {
+    "question": "How do I reset my corporate password?",
+    "expected_sources": ["password_reset.md"]
+    },
+    {
+    "question": "What should I do if I suspect my password has been compromised?",
+    "expected_sources": ["password_policy.md", "password_reset.md"]
+    },
+    {
+    "question": "What software should a new developer install?",
+    "expected_sources": ["developer_workstation.md"]
+    },
+    {
+    "question": "What applications are installed for all employees?",
+    "expected_sources": ["standard_software.md"]
+    },
+    {
+    "question": "How do I get access to the shared container platform?",
+    "expected_sources": ["docker_platform_access.md"]
+    },
+    {
+    "question": "Why does my container keep restarting?",
+    "expected_sources": ["docker_troubleshooting.md"]
+    },
+    {
+    "question": "How can I request access to GPU resources?",
+    "expected_sources": ["gpu_infrastructure.md", "compute_access.md"]
+    },
+    {
+    "question": "What GPU infrastructure does Northstar provide?",
+    "expected_sources": ["gpu_infrastructure.md"]
+    },
+    {
+    "question": "What should I do if monitoring goes down?",
+    "expected_sources": [
+        "monitoring_incident_runbook.md",
+        "monitoring_architecture.md"
+    ]
+    },
+    {
+    "question": "What is the difference between Grafana, metric collection and Alertmanager?",
+    "expected_sources": ["monitoring_architecture.md"]
+    },
+    {
+    "question": "Can I upload confidential company data to my personal cloud account?",
+    "expected_sources": ["data_handling.md"]
+    },
+    {
+    "question": "How do I request production administrator access?",
+    "expected_sources": ["privileged_access.md", "compute_access.md"]
+    },
+    {
+    "question": "Does installing Docker Desktop give me production container access?",
+    "expected_sources": [
+        "developer_workstation.md",
+        "docker_platform_access.md"
+    ]
+    },
+    {
+    "question": "Monitoring dashboards are unavailable but metrics are still collected. What should I avoid changing?",
+    "expected_sources": [
+        "monitoring_architecture.md",
+        "monitoring_incident_runbook.md"
+    ]
+    },
+    {
+    "question": "I changed my corporate password but my privileged system credential still fails. Why?",
+    "expected_sources": [
+        "password_reset.md",
+        "privileged_access.md"
+    ]
+    }
+]
