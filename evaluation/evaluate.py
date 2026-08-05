@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from app.load import load_knowledge_base
-from app.chunk import chunk_knowledge_base
+from app.chunk import paragraph_chunk_knowledge_base
 from app.embed import load_embedding_model, embed_chunks
 from app.retrieve import retrieve
 
@@ -74,9 +74,12 @@ def evaluate_retrieval(questions, chunks, model):
 
         for rank, result in enumerate(results, start=1):
             print(
-                f"  {rank}. {result['source']} "
+                f"\n  {rank}. {result['source']} "
                 f"— {result['score']:.4f}"
             )
+
+            print("  Start:", repr(result["content"][:120]))
+            print("  End:  ", repr(result["content"][-120:]))
 
         print(f"Hit@1: {top_1_hit}")
         print(f"Hit@3: {top_3_hit}")
@@ -109,7 +112,10 @@ def expected_source_coverage(results, expected_sources):
 
 def main():
     documents = load_knowledge_base(KNOWLEDGE_PATH)
-    chunks = chunk_knowledge_base(documents)
+    chunks = paragraph_chunk_knowledge_base(
+    documents,
+    chunk_size=100
+)
 
     model = load_embedding_model()
     chunks = embed_chunks(chunks, model)
