@@ -13,3 +13,6 @@ __pycache__/
 
 # Test and tool caches
 .pytest_cache/
+
+#Knowledge base cache
+data/

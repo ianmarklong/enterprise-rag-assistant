@@ -21,7 +21,7 @@ Production inference workloads run in managed environments operated by the platf
 GPU access requires:
 - membership in an approved engineering or data team;
 - completion of the compute usage orientation;
-- an approved compute access request.
+- an approved compute access request. 
 
 ## Usage expectations
 
