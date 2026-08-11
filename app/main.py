@@ -48,17 +48,38 @@ if chunks is None:
 else:
     print("Loaded chunks and embeddings from cache.")
 
+from app.vector_store import (
+    create_vector_store,
+    search_vector_store
+)
+
+client = create_vector_store(chunks)
+
 from app.retrieve import retrieve
 
 question = "How do I reset my password?"
 
+#would loop through every chunk and calculate cosine similarity
+'''
 results = retrieve(
     question,
     chunks,
     model,
     top_k=3
 )
+'''
 
+query_embedding = model.encode_query(
+    question,
+    convert_to_numpy=True
+)
+
+results = search_vector_store(
+    client,
+    query_embedding,
+    top_k=3
+)
+client.close()
 print(f"\nQuestion: {question}\n")
 
 for result in results:
