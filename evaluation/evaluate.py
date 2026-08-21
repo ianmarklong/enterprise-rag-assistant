@@ -4,7 +4,8 @@ from pathlib import Path
 from app.load import load_knowledge_base
 from app.chunk import paragraph_chunk_knowledge_base
 from app.embed import load_embedding_model, embed_chunks
-from app.retrieve import retrieve
+from app.rerank import load_reranker, rerank
+from app.vector_store import create_vector_store, search_vector_store
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -27,7 +28,7 @@ def has_source_hit(results, expected_sources):
     return False
 
 
-def evaluate_retrieval(questions, chunks, model):
+def evaluate_retrieval(questions, chunks, model, client, reranker):
     hit_at_1 = 0
     hit_at_3 = 0
     total_coverage_at_3 = 0
@@ -36,10 +37,21 @@ def evaluate_retrieval(questions, chunks, model):
         question = item["question"]
         expected_sources = item["expected_sources"]
 
-        results = retrieve(
+        query_embedding = model.encode_query(
+        question,
+        convert_to_numpy=True
+        )
+
+        candidates = search_vector_store(
+            client,
+            query_embedding,
+            top_k=8
+        )
+
+        results = rerank(
             question,
-            chunks,
-            model,
+            candidates,
+            reranker,
             top_k=3
         )
 
@@ -74,8 +86,9 @@ def evaluate_retrieval(questions, chunks, model):
 
         for rank, result in enumerate(results, start=1):
             print(
-                f"\n  {rank}. {result['source']} "
-                f"— {result['score']:.4f}"
+                f"\n  {rank}. {result['source']}"
+                f" — vector: {result['score']:.4f}"
+                f" — rerank: {result['rerank_score']:.4f}"
             )
 
             print("  Start:", repr(result["content"][:120]))
@@ -112,21 +125,29 @@ def expected_source_coverage(results, expected_sources):
 
 def main():
     documents = load_knowledge_base(KNOWLEDGE_PATH)
+
     chunks = paragraph_chunk_knowledge_base(
-    documents,
-    chunk_size=100
-)
+        documents,
+        chunk_size=100
+    )
 
     model = load_embedding_model()
     chunks = embed_chunks(chunks, model)
+
+    client = create_vector_store(chunks)
+    reranker = load_reranker()
 
     questions = load_questions(QUESTIONS_PATH)
 
     evaluate_retrieval(
         questions,
         chunks,
-        model
+        model,
+        client,
+        reranker
     )
+
+    client.close()
 
 
 if __name__ == "__main__":
