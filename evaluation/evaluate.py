@@ -32,14 +32,15 @@ def evaluate_retrieval(questions, chunks, model, client, reranker):
     hit_at_1 = 0
     hit_at_3 = 0
     total_coverage_at_3 = 0
+    total_reciprocal_rank = 0
 
     for item in questions:
         question = item["question"]
         expected_sources = item["expected_sources"]
 
-        query_embedding = model.encode_query(
-        question,
-        convert_to_numpy=True
+        query_embedding = model.encode(
+            question,
+            convert_to_numpy=True
         )
 
         candidates = search_vector_store(
@@ -54,6 +55,14 @@ def evaluate_retrieval(questions, chunks, model, client, reranker):
             reranker,
             top_k=3
         )
+
+        rr = reciprocal_rank(
+            results,
+            expected_sources
+        )
+
+        total_reciprocal_rank += rr
+        print(f"Reciprocal rank: {rr:.2f}")
 
         top_1_hit = has_source_hit(
             results[:1],
@@ -105,6 +114,10 @@ def evaluate_retrieval(questions, chunks, model, client, reranker):
     print(f"Questions: {question_count}")
     print(f"Hit@1: {hit_at_1 / question_count:.2%}")
     print(f"Hit@3: {hit_at_3 / question_count:.2%}")
+    print(
+    f"MRR: "
+    f"{total_reciprocal_rank / question_count:.3f}"
+)
 
     # Add final coverage print here
     print(
@@ -113,6 +126,9 @@ def evaluate_retrieval(questions, chunks, model, client, reranker):
     )
 
 def expected_source_coverage(results, expected_sources):
+    if len(expected_sources) == 0:
+        return 0.0
+
     retrieved_sources = {
         result["source"]
         for result in results
@@ -122,6 +138,12 @@ def expected_source_coverage(results, expected_sources):
 
     return len(matched_sources) / len(expected_sources)
 
+def reciprocal_rank(results, expected_sources):
+    for rank, result in enumerate(results, start=1):
+        if result["source"] in expected_sources:
+            return 1 / rank
+
+    return 0
 
 def main():
     documents = load_knowledge_base(KNOWLEDGE_PATH)

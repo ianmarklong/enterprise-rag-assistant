@@ -70,5 +70,53 @@
         "password_reset.md",
         "privileged_access.md"
     ]
+    },
+        {
+        "question": "I changed my password and can sign into email, but my admin credential still fails. What explains this?",
+        "expected_sources": [
+        "password_reset.md",
+        "privileged_access.md"
+        ]
+    },
+    {
+        "question": "The dashboard is unavailable, but metrics are still being collected. Should I restart the collectors?",
+        "expected_sources": [
+        "monitoring_architecture.md",
+        "monitoring_incident_runbook.md"
+        ]
+    },
+    {
+        "question": "I installed Docker Desktop. Why can't I deploy to the shared production environment?",
+        "expected_sources": [
+        "developer_workstation.md",
+        "docker_platform_access.md"
+        ]
+    },
+    {
+        "question": "Can an engineer deploy a production AI model directly from their laptop?",
+        "expected_sources": [
+        "gpu_infrastructure.md"
+        ]
+    },
+    {
+        "question": "What approvals are required for production compute access?",
+        "expected_sources": [
+        "compute_access.md",
+        "privileged_access.md"
+        ]
+    },
+    {
+        "question": "My MFA device is unavailable and I forgot my password. What should I do?",
+        "expected_sources": [
+        "password_reset.md"
+        ]
+    },
+    {
+        "question": "What is Northstar's annual leave entitlement?",
+        "expected_sources": []
+    },
+    {
+        "question": "Who is Northstar's CEO?",
+        "expected_sources": []
     }
 ]
