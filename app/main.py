@@ -57,7 +57,7 @@ client = create_vector_store(chunks)
 
 from app.retrieve import retrieve
 
-question = "How do I reset my password?"
+question = "How do I get access to GPU resources?"
 
 #would loop through every chunk and calculate cosine similarity
 '''
@@ -77,7 +77,8 @@ query_embedding = model.encode_query(
 results = search_vector_store(
     client,
     query_embedding,
-    top_k=3
+    top_k=3,
+    category ='infrastructure'
 )
 client.close()
 print(f"\nQuestion: {question}\n")

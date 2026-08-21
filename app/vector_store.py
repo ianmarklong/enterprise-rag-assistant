@@ -1,5 +1,12 @@
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
+from qdrant_client.models import (
+    Distance,
+    VectorParams,
+    PointStruct,
+    Filter,
+    FieldCondition,
+    MatchValue,
+)
 
 
 COLLECTION_NAME = "northstar_chunks"
@@ -41,10 +48,23 @@ def create_vector_store(chunks):
 
     return client
 
-def search_vector_store(client, query_embedding, top_k=3):
+def search_vector_store(client, query_embedding, top_k=3, category=None):
+    query_filter = None
+
+    if category is not None:
+        query_filter = Filter(
+            must=[
+                FieldCondition(
+                    key="category",
+                    match=MatchValue(value=category)
+
+                )
+            ]
+        )
     response = client.query_points(
         collection_name=COLLECTION_NAME,
         query=query_embedding.tolist(),
+        query_filter=query_filter,
         limit=top_k
     )
 
