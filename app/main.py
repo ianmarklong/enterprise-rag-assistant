@@ -57,7 +57,7 @@ client = create_vector_store(chunks)
 
 from app.retrieve import retrieve
 
-question = "How do I get access to GPU resources?"
+question = "What is Northstar's annual leave entitlement?"
 
 #would loop through every chunk and calculate cosine similarity
 '''
@@ -78,7 +78,6 @@ results = search_vector_store(
     client,
     query_embedding,
     top_k=3,
-    category ='infrastructure'
 )
 client.close()
 print(f"\nQuestion: {question}\n")
@@ -99,11 +98,12 @@ print(prompt)
 
 from app.generate import generate_answer
 
-#answer = generate_answer(prompt) #dont run because i am not paying for an openai api key for this
+answer = generate_answer(prompt)
 
 print("\nANSWER")
 print("-" * 50)
-#print(answer)
+print(answer)
+
 
 #cd "C:\Users\ianma\Enterprise RAG Assistant" 
 #.venv\Scripts\Activate.ps1  

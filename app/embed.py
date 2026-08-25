@@ -15,9 +15,9 @@ def embed_chunks(chunks, model):
         chunks_content.append(chunk['content'])
     
 
-    # 2. Pass that list into model.encode()
+    # 2. Pass that list into model.encode_document()
     #    Use convert_to_numpy=True
-    embeddings = model.encode(chunks_content, convert_to_numpy=True)
+    embeddings = model.encode_document(chunks_content,convert_to_numpy=True)
 
 
     # 3. Pair each chunk with its corresponding embedding

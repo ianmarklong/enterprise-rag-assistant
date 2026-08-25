@@ -28,7 +28,9 @@ Answer the user's question using only the provided context.
 If the context does not contain enough information to answer the question,
 say that the available documentation does not contain enough information.
 
-Do not invent company policies, procedures, systems, or facts.
+Do not use outside knowledge.
+
+Cite the source document names used.
 
 Context: {combined}
 

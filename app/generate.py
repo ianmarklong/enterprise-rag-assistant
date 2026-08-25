@@ -1,15 +1,18 @@
-from openai import OpenAI
+import ollama
 
 
-MODEL_NAME = "gpt-5.6-luna"
+MODEL_NAME = "qwen3:4b"
 
 
 def generate_answer(prompt):
-    client = OpenAI()
-
-    response = client.responses.create(
+    response = ollama.chat(
         model=MODEL_NAME,
-        input=prompt
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ]
     )
 
-    return response.output_text
+    return response["message"]["content"]

@@ -38,9 +38,9 @@ def evaluate_retrieval(questions, chunks, model, client, reranker):
         question = item["question"]
         expected_sources = item["expected_sources"]
 
-        query_embedding = model.encode(
-            question,
-            convert_to_numpy=True
+        query_embedding = model.encode_query(
+        question,
+        convert_to_numpy=True
         )
 
         candidates = search_vector_store(
