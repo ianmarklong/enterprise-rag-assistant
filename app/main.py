@@ -108,4 +108,4 @@ print(answer)
 #cd "C:\Users\ianma\Enterprise RAG Assistant" 
 #.venv\Scripts\Activate.ps1  
 #$env:OPENAI_API_KEY="sk-qrstefghuvwxabcdqrstefghuvwxabcdqrstefgh"
-#python -m app.main in enterprise rag assistant dir
+#python -m app.main in enterprise rag assistant dir python -m evaluation.evaluate_answers

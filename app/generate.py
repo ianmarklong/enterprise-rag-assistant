@@ -12,7 +12,8 @@ def generate_answer(prompt):
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        keep_alive="10m"
     )
 
     return response["message"]["content"]

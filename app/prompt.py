@@ -1,40 +1,35 @@
 def build_prompt(question, retrieved_chunks):
     context_parts = []
 
-    for retrieved_chunk in retrieved_chunks:
+    for result in retrieved_chunks:
+        context_parts.append(
+            f"[Source: {result['source']}]\n"
+            f"{result['content']}"
+        )
 
-    # create text such as:
-    #
-    # [Source: gpu_infrastructure.md]
-    # <chunk content>
-    #
-    # and add it to context_parts
-        context_parts.append(f"[Source: {retrieved_chunk['source']} \n {retrieved_chunk['content']}]")
+    context = "\n\n".join(context_parts)
 
-    # Combine context_parts into one string
-    combined = '\n\n'.join(context_parts)
-
-
-    # Create the final prompt containing:
-    #
-    # instructions
-    # context
-    # question
-    prompt = f'''
+    prompt = f"""
 You are an internal assistant for Northstar Technologies.
 
 Answer the user's question using only the provided context.
 
-If the context does not contain enough information to answer the question,
-say that the available documentation does not contain enough information.
+If the provided context contains enough information:
+- Answer the question directly.
+- Cite the source document name(s) used.
+- Do NOT use the refusal phrase below anywhere in the answer.
 
-Do not use outside knowledge.
+If the provided context does NOT contain enough information to answer the question, respond with exactly:
 
-Cite the source document names used.
+INSUFFICIENT_DOCUMENTATION
 
-Context: {combined}
+Do not invent company policies, procedures, systems, or facts.
 
-Question: {question}'''
+CONTEXT:
+{context}
 
+QUESTION:
+{question}
+"""
 
     return prompt
