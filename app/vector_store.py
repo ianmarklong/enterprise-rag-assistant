@@ -80,3 +80,49 @@ def search_vector_store(client, query_embedding, top_k=3, category=None):
         })
 
     return results
+
+def get_vector_store(chunks, rebuild=False):
+    client = QdrantClient(path="data/qdrant")
+
+    collection_exists = client.collection_exists(
+        COLLECTION_NAME
+    )
+
+    if rebuild or not collection_exists:
+        vector_size = len(chunks[0]["embedding"])
+
+        client.recreate_collection(
+            collection_name=COLLECTION_NAME,
+            vectors_config=VectorParams(
+                size=vector_size,
+                distance=Distance.COSINE
+            )
+        )
+
+        points = []
+
+        for point_id, chunk in enumerate(chunks):
+            points.append(
+                PointStruct(
+                    id=point_id,
+                    vector=chunk["embedding"].tolist(),
+                    payload={
+                        "content": chunk["content"],
+                        "source": chunk["source"],
+                        "category": chunk["category"],
+                        "chunk_id": chunk["chunk_id"]
+                    }
+                )
+            )
+
+        client.upsert(
+            collection_name=COLLECTION_NAME,
+            points=points
+        )
+
+        print("Qdrant collection rebuilt.")
+
+    else:
+        print("Loaded existing Qdrant collection.")
+
+    return client
