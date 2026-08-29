@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from app.load import load_knowledge_base
@@ -20,14 +22,19 @@ app = FastAPI(
     title="Enterprise RAG Assistant"
 )
 
-
-class QueryRequest(BaseModel):
-    question: str
-
-
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 KNOWLEDGE_PATH = PROJECT_ROOT / "knowledge_base"
 CACHE_PATH = PROJECT_ROOT / "data" / "chunk_cache.pkl"
+STATIC_PATH = PROJECT_ROOT / "app" / "static"
+
+app.mount(
+    "/static",
+    StaticFiles(directory=STATIC_PATH),
+    name="static"
+)
+
+class QueryRequest(BaseModel):
+    question: str
 
 print("Loading RAG system...")
 
@@ -80,6 +87,11 @@ reranker = load_reranker()
 
 print("RAG system ready.")
 
+@app.get("/")
+def home():
+    return FileResponse(
+        STATIC_PATH / "index.html"
+    )
 
 @app.get("/health")
 def health():

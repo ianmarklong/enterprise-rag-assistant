@@ -1,0 +1,26 @@
+services:
+  rag-assistant:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Docker Desktop provides this hostname. On a Linux Docker host, the
+      # extra_hosts entry below maps it to the host gateway.
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+    volumes:
+      # Contains chunk_cache.pkl and embedded Qdrant data.
+      - rag-data:/app/data
+      # Avoids redownloading embedding and reranking models on every rebuild.
+      - model-cache:/app/model-cache
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 3m
+
+volumes:
+  rag-data:
+  model-cache:
