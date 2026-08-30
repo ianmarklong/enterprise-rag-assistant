@@ -20,6 +20,7 @@ class Settings:
     knowledge_path: Path
     cache_path: Path
     qdrant_path: Path
+    qdrant_url: str | None
     static_path: Path
     retrieval_top_k: int
     rerank_top_k: int
@@ -27,6 +28,7 @@ class Settings:
     @classmethod
     def from_environment(cls) -> "Settings":
         data_path = Path(os.getenv("DATA_PATH", PROJECT_ROOT / "data"))
+        qdrant_url = os.getenv("QDRANT_URL", "").strip() or None
         retrieval_top_k = _positive_int("RETRIEVAL_TOP_K", 8)
         rerank_top_k = _positive_int("RERANK_TOP_K", 3)
 
@@ -41,6 +43,7 @@ class Settings:
             ),
             cache_path=Path(os.getenv("CACHE_PATH", data_path / "chunk_cache.pkl")),
             qdrant_path=Path(os.getenv("QDRANT_PATH", data_path / "qdrant")),
+            qdrant_url=qdrant_url,
             static_path=PROJECT_ROOT / "app" / "static",
             retrieval_top_k=retrieval_top_k,
             rerank_top_k=rerank_top_k,

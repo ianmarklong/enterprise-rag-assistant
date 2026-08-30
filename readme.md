@@ -53,14 +53,20 @@ and reranking models, so it can take longer than later starts.
 
 `compose.yaml` creates two named Docker volumes:
 
-- `rag-data` stores `chunk_cache.pkl` and embedded Qdrant data. This preserves
-  expensive indexing work when the application container is recreated.
+- `rag-data` stores `chunk_cache.pkl`, preserving expensive embedding work when
+  the application container is recreated.
 - `model-cache` stores downloaded Hugging Face models. This prevents downloading
   embedding and reranking models on every image rebuild.
+- `qdrant-data` stores the Qdrant server collection independently from the
+  application container.
 
 The application container talks to host Ollama through
 `host.docker.internal:11434`. That address is supplied through `OLLAMA_HOST`,
 so another Ollama server can be used by changing the value in `.env`.
+
+The application and ingestion containers connect to the `qdrant` service over
+Docker's internal network at `http://qdrant:6333`. Its dashboard is available
+only on the local machine at <http://localhost:6333/dashboard>.
 
 ## Runtime configuration and logs
 

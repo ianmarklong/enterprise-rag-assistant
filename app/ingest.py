@@ -55,6 +55,7 @@ def prepare_index(
         chunks,
         path=runtime_settings.qdrant_path,
         rebuild=cache_rebuilt,
+        url=runtime_settings.qdrant_url,
     )
 
     return IngestionResult(
@@ -85,7 +86,8 @@ def main() -> None:
     print(f"Source documents: {result.source_document_count}")
     print(f"Indexed chunks: {len(result.chunks)}")
     print(f"Embedding cache: {action}")
-    print(f"Qdrant path: {settings.qdrant_path}")
+    qdrant_target = settings.qdrant_url or str(settings.qdrant_path)
+    print(f"Qdrant target: {qdrant_target}")
     result.vector_client.close()
 
 

@@ -1,4 +1,17 @@
 services:
+  qdrant:
+    image: qdrant/qdrant:v1.16.2
+    # The dashboard is useful locally, but is not reachable from other hosts.
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/6333'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
   rag-assistant:
     build: .
     ports:
@@ -8,15 +21,19 @@ services:
       # extra_hosts entry below maps it to the host gateway.
       OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+      QDRANT_URL: http://qdrant:6333
       RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
       RERANK_TOP_K: ${RERANK_TOP_K:-3}
     volumes:
-      # Contains chunk_cache.pkl and embedded Qdrant data.
+      # Contains the reusable chunk and embedding cache.
       - rag-data:/app/data
       # Avoids redownloading embedding and reranking models on every rebuild.
       - model-cache:/app/model-cache
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    depends_on:
+      qdrant:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
       interval: 30s
@@ -30,10 +47,16 @@ services:
     profiles: ["ingestion"]
     build: .
     command: ["python", "-m", "app.ingest"]
+    environment:
+      QDRANT_URL: http://qdrant:6333
     volumes:
       - rag-data:/app/data
       - model-cache:/app/model-cache
+    depends_on:
+      qdrant:
+        condition: service_healthy
 
 volumes:
   rag-data:
   model-cache:
+  qdrant-data:
