@@ -7,6 +7,9 @@ services:
       # Docker Desktop provides this hostname. On a Linux Docker host, the
       # extra_hosts entry below maps it to the host gateway.
       OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:4b-instruct-2507-q4_K_M}
+      RETRIEVAL_TOP_K: ${RETRIEVAL_TOP_K:-8}
+      RERANK_TOP_K: ${RERANK_TOP_K:-3}
     volumes:
       # Contains chunk_cache.pkl and embedded Qdrant data.
       - rag-data:/app/data

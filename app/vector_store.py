@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from qdrant_client import QdrantClient
 from qdrant_client.models import (
     Distance,
@@ -81,8 +83,8 @@ def search_vector_store(client, query_embedding, top_k=3, category=None):
 
     return results
 
-def get_vector_store(chunks, rebuild=False):
-    client = QdrantClient(path="data/qdrant")
+def get_vector_store(chunks, path, rebuild=False):
+    client = QdrantClient(path=str(Path(path)))
 
     collection_exists = client.collection_exists(
         COLLECTION_NAME

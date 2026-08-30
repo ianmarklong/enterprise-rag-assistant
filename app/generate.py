@@ -2,7 +2,7 @@ import ollama
 import os
 
 
-MODEL_NAME = "qwen3:4b"
+MODEL_NAME = os.getenv("OLLAMA_MODEL", "qwen3:4b-instruct-2507-q4_K_M")
 OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
 # Keep the network location outside the code so local and Docker runs can
@@ -23,4 +23,8 @@ def generate_answer(prompt):
         }
     )
 
-    return response["message"]["content"]
+    answer = response["message"].get("content", "").strip()
+    if not answer:
+        raise RuntimeError("Ollama returned an empty answer")
+
+    return answer

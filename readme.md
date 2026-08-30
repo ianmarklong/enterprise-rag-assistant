@@ -29,10 +29,11 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Ollama must be running locally with the Qwen model available:
+Ollama must be running locally with the non-thinking Qwen instruct model
+available:
 
 ```powershell
-ollama pull qwen3:4b
+ollama pull qwen3:4b-instruct-2507-q4_K_M
 uvicorn app.api:app --reload
 ```
 
@@ -43,7 +44,7 @@ Open <http://localhost:8000> in a browser.
 Start Ollama on the host and ensure its model has been downloaded first:
 
 ```powershell
-ollama pull qwen3:4b
+ollama pull qwen3:4b-instruct-2507-q4_K_M
 docker compose up --build
 ```
 
@@ -60,6 +61,28 @@ and reranking models, so it can take longer than later starts.
 The application container talks to host Ollama through
 `host.docker.internal:11434`. That address is supplied through `OLLAMA_HOST`,
 so another Ollama server can be used by changing the value in `.env`.
+
+## Runtime configuration and logs
+
+Copy `.env.example` to `.env` to set values locally without committing them.
+The application supports these settings:
+
+- `OLLAMA_HOST` and `OLLAMA_MODEL` select the local model service and model.
+- `RETRIEVAL_TOP_K` controls how many Qdrant candidates are retrieved.
+- `RERANK_TOP_K` controls how many candidates remain after reranking.
+
+`RERANK_TOP_K` cannot exceed `RETRIEVAL_TOP_K`; the application rejects that
+invalid configuration during startup. Each completed query produces a log entry
+with a request ID and timings for embedding, retrieval, reranking, generation,
+and the total request. Question text is intentionally not logged.
+
+## Metadata filtering
+
+Each chunk stores its source document and category. The browser can optionally
+send a `category` with a question, and Qdrant applies that metadata constraint
+while performing semantic retrieval. Available categories are provided by
+`GET /metadata/categories`. If a selected category contains no matching chunks,
+the API returns `INSUFFICIENT_DOCUMENTATION` without calling the LLM.
 
 Useful Docker commands:
 
