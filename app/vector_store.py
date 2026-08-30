@@ -14,8 +14,8 @@ from qdrant_client.models import (
 COLLECTION_NAME = "northstar_chunks"
 
 
-def create_vector_store(chunks):
-    client = QdrantClient(path="data/qdrant") #local embedded Qdrant
+def create_vector_store(chunks, path="data/qdrant"):
+    client = QdrantClient(path=str(path)) # local embedded Qdrant
 
     vector_size = len(chunks[0]["embedding"])
 

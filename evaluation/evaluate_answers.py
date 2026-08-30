@@ -13,6 +13,7 @@ from app.generate import generate_answer
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 KNOWLEDGE_PATH = PROJECT_ROOT / "knowledge_base"
 QUESTIONS_PATH = PROJECT_ROOT / "evaluation" / "questions.json"
+EVALUATION_QDRANT_PATH = ":memory:"
 
 def load_questions(path):
     with open(path, "r", encoding="utf-8") as file:
@@ -139,7 +140,7 @@ def main():
     model = load_embedding_model()
     chunks = embed_chunks(chunks, model)
 
-    client = create_vector_store(chunks)
+    client = create_vector_store(chunks, path=EVALUATION_QDRANT_PATH)
     reranker = load_reranker()
 
     questions = load_questions(QUESTIONS_PATH)

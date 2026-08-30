@@ -112,6 +112,9 @@ python -m app.ingest --force
 The FastAPI server uses this same ingestion preparation code during startup,
 which keeps the offline command and deployed application consistent.
 
+The retrieval and answer evaluation scripts use an in-memory Qdrant instance.
+They do not modify the persistent index used by the application.
+
 When running with Docker, run the same ingestion workflow inside a short-lived
 container instead. It writes to the `rag-data` Docker volume that the API
 container reads:
