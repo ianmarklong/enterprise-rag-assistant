@@ -27,6 +27,7 @@ services:
   # A one-off job, run manually when the knowledge base changes. It uses the
   # same persistent data and model-cache volumes as the API service.
   ingest:
+    profiles: ["ingestion"]
     build: .
     command: ["python", "-m", "app.ingest"]
     volumes:

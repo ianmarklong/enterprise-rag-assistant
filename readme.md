@@ -84,6 +84,23 @@ while performing semantic retrieval. Available categories are provided by
 `GET /metadata/categories`. If a selected category contains no matching chunks,
 the API returns `INSUFFICIENT_DOCUMENTATION` without calling the LLM.
 
+## Agent workflow
+
+Before retrieval, Ollama selects one permitted tool: `search_knowledge_base`
+for knowledge-seeking questions or `list_categories` for direct requests to
+list category labels. The chosen tool name is validated before execution. If
+the model does not return exactly one valid tool call, a deterministic router
+selects a safe fallback action instead.
+
+Evaluate this behavior with:
+
+```powershell
+python -m evaluation.evaluate_agent
+```
+
+The evaluation measures tool-selection accuracy and deliberately simulates a
+model failure to verify the fallback path.
+
 ## Ingestion workflow
 
 RAG has two separate workflows. Ingestion runs when knowledge changes; querying
@@ -120,14 +137,14 @@ container instead. It writes to the `rag-data` Docker volume that the API
 container reads:
 
 ```powershell
-docker compose run --build --rm ingest
+docker compose --profile ingestion run --build --rm ingest
 ```
 
 To deliberately rebuild the Docker index, replace the service's default command
 with the explicit force command:
 
 ```powershell
-docker compose run --build --rm ingest python -m app.ingest --force
+docker compose --profile ingestion run --build --rm ingest python -m app.ingest --force
 ```
 
 Useful Docker commands:

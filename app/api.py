@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
+from app.agent import choose_tool
 from app.config import settings
 from app.embed import load_embedding_model
 from app.generate import generate_answer
@@ -88,6 +89,34 @@ def query(request: QueryRequest):
     request_id = uuid4().hex
     started_at = time.perf_counter()
 
+    agent_started_at = time.perf_counter()
+    decision = choose_tool(question)
+    agent_ms = (time.perf_counter() - agent_started_at) * 1000
+
+    if decision.tool == "list_categories":
+        available_categories = sorted({chunk["category"] for chunk in chunks})
+        response = {
+            "request_id": request_id,
+            "question": question,
+            "category": category,
+            "action": decision.tool,
+            "agent_selection": decision.selection_mode,
+            "answer": "Available knowledge-base categories: "
+            + ", ".join(available_categories),
+            "sources": [],
+        }
+        logger.info(
+            "agent_completed request_id=%s tool=%s selection=%s question_chars=%s "
+            "agent_ms=%.1f total_ms=%.1f",
+            request_id,
+            decision.tool,
+            decision.selection_mode,
+            len(question),
+            agent_ms,
+            (time.perf_counter() - started_at) * 1000,
+        )
+        return response
+
     embedding_started_at = time.perf_counter()
     query_embedding = embedding_model.encode_query(
         question,
@@ -109,15 +138,21 @@ def query(request: QueryRequest):
             "request_id": request_id,
             "question": question,
             "category": category,
+            "action": decision.tool,
+            "agent_selection": decision.selection_mode,
             "answer": "INSUFFICIENT_DOCUMENTATION",
             "sources": []
         }
         logger.info(
-            "query_completed request_id=%s question_chars=%s category=%s "
-            "candidates=0 results=0 embedding_ms=%.1f retrieval_ms=%.1f total_ms=%.1f",
+            "query_completed request_id=%s tool=%s selection=%s question_chars=%s category=%s "
+            "candidates=0 results=0 agent_ms=%.1f embedding_ms=%.1f "
+            "retrieval_ms=%.1f total_ms=%.1f",
             request_id,
+            decision.tool,
+            decision.selection_mode,
             len(question),
             category or "all",
+            agent_ms,
             embedding_ms,
             retrieval_ms,
             (time.perf_counter() - started_at) * 1000,
@@ -157,19 +192,24 @@ def query(request: QueryRequest):
         "request_id": request_id,
         "question": question,
         "category": category,
+        "action": decision.tool,
+        "agent_selection": decision.selection_mode,
         "answer": answer,
         "sources": sources
     }
 
     logger.info(
-        "query_completed request_id=%s question_chars=%s category=%s candidates=%s "
-        "results=%s embedding_ms=%.1f retrieval_ms=%.1f rerank_ms=%.1f "
+        "query_completed request_id=%s tool=%s selection=%s question_chars=%s category=%s candidates=%s "
+        "results=%s agent_ms=%.1f embedding_ms=%.1f retrieval_ms=%.1f rerank_ms=%.1f "
         "generation_ms=%.1f total_ms=%.1f",
         request_id,
+        decision.tool,
+        decision.selection_mode,
         len(question),
         category or "all",
         len(candidates),
         len(results),
+        agent_ms,
         embedding_ms,
         retrieval_ms,
         rerank_ms,

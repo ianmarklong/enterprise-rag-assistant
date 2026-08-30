@@ -1,0 +1,26 @@
+[
+  {
+    "question": "What categories are available?",
+    "expected_tool": "list_categories"
+  },
+  {
+    "question": "Please list categories in the knowledge base.",
+    "expected_tool": "list_categories"
+  },
+  {
+    "question": "How do I reset my corporate password?",
+    "expected_tool": "search_knowledge_base"
+  },
+  {
+    "question": "Why does my container keep restarting?",
+    "expected_tool": "search_knowledge_base"
+  },
+  {
+    "question": "What approvals are required for production compute access?",
+    "expected_tool": "search_knowledge_base"
+  },
+  {
+    "question": "Who is Northstar's CEO?",
+    "expected_tool": "search_knowledge_base"
+  }
+]
