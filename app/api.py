@@ -7,15 +7,13 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from app.cache import get_knowledge_fingerprint, load_chunk_cache, save_chunk_cache
-from app.chunk import paragraph_chunk_knowledge_base
 from app.config import settings
-from app.embed import embed_chunks, load_embedding_model
+from app.embed import load_embedding_model
 from app.generate import generate_answer
-from app.load import load_knowledge_base
+from app.ingest import prepare_index
 from app.prompt import build_prompt
 from app.rerank import load_reranker, rerank
-from app.vector_store import get_vector_store, search_vector_store
+from app.vector_store import search_vector_store
 
 
 logging.basicConfig(
@@ -51,25 +49,14 @@ class QueryRequest(BaseModel):
 
 print("Loading RAG system...")
 embedding_model = load_embedding_model()
-fingerprint = get_knowledge_fingerprint(settings.knowledge_path)
-chunks = load_chunk_cache(settings.cache_path, fingerprint)
-cache_rebuilt = False
-
-if chunks is None:
-    print("No valid embedding cache found. Rebuilding...")
-    documents = load_knowledge_base(settings.knowledge_path)
-    chunks = paragraph_chunk_knowledge_base(documents, chunk_size=100)
-    chunks = embed_chunks(chunks, embedding_model)
-    save_chunk_cache(chunks, settings.cache_path, fingerprint)
-    cache_rebuilt = True
-    print("Embedding cache saved.")
-else:
-    print("Loaded embeddings from cache.")
-
-vector_client = get_vector_store(
-    chunks,
-    path=settings.qdrant_path,
-    rebuild=cache_rebuilt
+ingestion_result = prepare_index(embedding_model)
+chunks = ingestion_result.chunks
+vector_client = ingestion_result.vector_client
+logger.info(
+    "index_ready source_documents=%s chunks=%s cache_rebuilt=%s",
+    ingestion_result.source_document_count,
+    len(chunks),
+    ingestion_result.cache_rebuilt,
 )
 reranker = load_reranker()
 print("RAG system ready.")

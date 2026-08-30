@@ -84,6 +84,33 @@ while performing semantic retrieval. Available categories are provided by
 `GET /metadata/categories`. If a selected category contains no matching chunks,
 the API returns `INSUFFICIENT_DOCUMENTATION` without calling the LLM.
 
+## Ingestion workflow
+
+RAG has two separate workflows. Ingestion runs when knowledge changes; querying
+runs for every user question:
+
+```text
+Ingestion: documents → chunks → embeddings → Qdrant index
+Querying: question → query embedding → retrieve → rerank → LLM answer
+```
+
+Build or verify the index manually with:
+
+```powershell
+python -m app.ingest
+```
+
+This reuses the embedding cache when it matches the knowledge base. Force a
+complete rebuild after changing source documents, chunking logic, or the
+embedding model:
+
+```powershell
+python -m app.ingest --force
+```
+
+The FastAPI server uses this same ingestion preparation code during startup,
+which keeps the offline command and deployed application consistent.
+
 Useful Docker commands:
 
 ```powershell
