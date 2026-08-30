@@ -100,9 +100,10 @@ Build or verify the index manually with:
 python -m app.ingest
 ```
 
-This reuses the embedding cache when it matches the knowledge base. Force a
-complete rebuild after changing source documents, chunking logic, or the
-embedding model:
+This reuses the embedding cache when it matches the knowledge base. Source
+document changes are detected automatically. Force a complete rebuild after
+changing chunking logic or the embedding model, or when you deliberately want
+to recreate the index:
 
 ```powershell
 python -m app.ingest --force
@@ -110,6 +111,21 @@ python -m app.ingest --force
 
 The FastAPI server uses this same ingestion preparation code during startup,
 which keeps the offline command and deployed application consistent.
+
+When running with Docker, run the same ingestion workflow inside a short-lived
+container instead. It writes to the `rag-data` Docker volume that the API
+container reads:
+
+```powershell
+docker compose run --build --rm ingest
+```
+
+To deliberately rebuild the Docker index, replace the service's default command
+with the explicit force command:
+
+```powershell
+docker compose run --build --rm ingest python -m app.ingest --force
+```
 
 Useful Docker commands:
 

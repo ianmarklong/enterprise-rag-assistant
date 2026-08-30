@@ -24,6 +24,15 @@ services:
       retries: 3
       start_period: 3m
 
+  # A one-off job, run manually when the knowledge base changes. It uses the
+  # same persistent data and model-cache volumes as the API service.
+  ingest:
+    build: .
+    command: ["python", "-m", "app.ingest"]
+    volumes:
+      - rag-data:/app/data
+      - model-cache:/app/model-cache
+
 volumes:
   rag-data:
   model-cache:

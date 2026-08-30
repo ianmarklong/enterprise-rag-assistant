@@ -1,7 +1,8 @@
 """Offline ingestion workflow for the enterprise knowledge base.
 
 Run with: python -m app.ingest
-Use --force after changing source documents, chunking, or the embedding model.
+Source-document changes are detected automatically. Use --force after changing
+the chunking strategy or embedding model, or when deliberately rebuilding.
 """
 
 import argparse
